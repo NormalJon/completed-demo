@@ -118,7 +118,7 @@ const PriceBook = () => {
             <aside className="w-64 bg-[#2C3E50] text-white flex flex-col">
                 <div className="px-4 py-5 border-b border-[#1F2F3D]">
                     {/* You could put your brand logo or text here */}
-                    <h1 className="text-xl font-semibold">DocuClipper</h1>
+                    <h1 className="text-xl font-semibold">ToolboxTechs</h1>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -148,7 +148,7 @@ const PriceBook = () => {
 
                 {/* (Optional) Footer or subscription info at bottom */}
                 <div className="p-4 border-t border-[#1F2F3D] text-xs">
-                    DocuClipper Business Trial
+                    ToolboxTechs Business Trial
                     <div>200 pages / month</div>
                     <div>Subscription Pages Left: 177</div>
                 </div>
