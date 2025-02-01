@@ -123,27 +123,15 @@ const PriceBook = () => {
 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-2">
                     {sideNavItems.map((item, i) => (
-                        <a
+                        <Link
                             key={i}
-                            href="#"
+                            to={item.path}
                             className="flex items-center text-sm p-2 hover:bg-[#34495E] rounded transition-colors"
                         >
                             {item.icon}
                             <span className="ml-2">{item.label}</span>
-                        </a>
+                        </Link>
                     ))}
-
-                    {/* Download section */}
-                    <div className="mt-6">
-                        <h2 className="text-sm font-semibold mb-2 uppercase">Download</h2>
-                        <a
-                            href="#"
-                            className="flex items-center text-sm p-2 hover:bg-[#34495E] rounded transition-colors"
-                        >
-                            <FileText size={20} />
-                            <span className="ml-2">Converted Files</span>
-                        </a>
-                    </div>
                 </nav>
 
                 {/* (Optional) Footer or subscription info at bottom */}
