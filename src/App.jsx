@@ -3,8 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import DocConverter from './utils/DocConverter.jsx';
-import PriceBook from './components/pricebook/priceBook_2.jsx';
-import PricebookUpdate from './components/pricebook/PriceBookUpdate.jsx';
+import PriceBook from './components/pricebook/pricebook_2.jsx';
+import PricebookUpdate from './components/pricebook/PricebookUpdate.jsx';
 import Login from './components/auth/LoginForm.jsx';
 import PrivateRoute from './components/auth/PrivateRoute.jsx';
 
