@@ -1,6 +1,5 @@
-// App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import DocConverter from './utils/DocConverter.jsx';
 import PriceBook from './components/pricebook/pricebook_2.jsx';
@@ -14,9 +13,20 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
-        {/* Protected Routes */}
+
+        {/* Redirect root to pricebook */}
         <Route
           path="/"
+          element={
+            <PrivateRoute>
+              <Navigate to="/pricebook" replace />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Protected Routes */}
+        <Route
+          path="/docconverter"
           element={
             <PrivateRoute>
               <DocConverter />
