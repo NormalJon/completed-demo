@@ -1,5 +1,7 @@
-// PriceBook.jsx
+// pricebook_2.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import {
     X,
     Building2,
@@ -7,7 +9,8 @@ import {
     ScrollText,
     BarChart3,
     Image as ImageIcon,
-    File
+    File,
+    DollarSign
 } from 'lucide-react';
 
 const PriceBook = () => {
