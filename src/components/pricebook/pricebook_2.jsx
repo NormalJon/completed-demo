@@ -89,7 +89,6 @@ const PriceBook = () => {
                 <div className="px-4 py-5 border-b border-[#1F2F3D]">
                     <h1 className="text-xl font-semibold">ToolboxTechs</h1>
                 </div>
-
                 <nav className="flex-1 overflow-y-auto p-4 space-y-2">
                     {sideNavItems.map((item, i) => (
                         <Link
@@ -102,7 +101,6 @@ const PriceBook = () => {
                         </Link>
                     ))}
                 </nav>
-
                 <div className="p-4 border-t border-[#1F2F3D] text-xs">
                     ToolboxTechs Business Trial
                     <div>200 pages / month</div>
@@ -117,7 +115,6 @@ const PriceBook = () => {
                     <span className="mx-2">/</span>
                     <span>Price Book</span>
                 </div>
-
                 <h1 className="text-2xl font-bold mb-6">Price Book Builder</h1>
 
                 {/* Buttons */}
@@ -127,34 +124,49 @@ const PriceBook = () => {
                     </button>
                 </div>
 
-                {/* Table */}
-                <div className="bg-white rounded shadow p-4">
+                {/* --- Updated Table Container --- */}
+                <div className="bg-white border rounded shadow p-4">
                     <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b bg-gray-50">
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">#</th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">#</th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
                                     Invoice Number
                                 </th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">Vendor</th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">Part Number</th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">Description</th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">Price</th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">Status</th>
-                                <th className="py-2 px-3 text-sm font-semibold text-gray-600">Actions</th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                    Vendor
+                                </th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                    Part Number
+                                </th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                    Description
+                                </th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                    Price
+                                </th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                    Status
+                                </th>
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             {items.map((item) => (
-                                <tr key={item.id} className="border-b last:border-b-0">
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.id}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.invoiceNumber}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.vendor}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.partNumber}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.description}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.price}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">{item.status}</td>
-                                    <td className="py-2 px-3 text-sm text-gray-700">
+                                <tr
+                                    key={item.id}
+                                    className="border-t hover:bg-gray-50"
+                                >
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.id}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.invoiceNumber}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.vendor}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.partNumber}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.description}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.price}</td>
+                                    <td className="py-3 px-4 text-sm text-gray-700">{item.status}</td>
+                                    <td className="py-3 px-4 text-sm">
                                         <button
                                             onClick={() => handleApproveClick(item)}
                                             className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2"
@@ -163,7 +175,7 @@ const PriceBook = () => {
                                         </button>
                                         <button
                                             onClick={() => handleDenyClick(item.id)}
-                                            className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                                            className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
                                         >
                                             Deny
                                         </button>
@@ -173,9 +185,7 @@ const PriceBook = () => {
                         </tbody>
                     </table>
                 </div>
-
             </main>
-
             {showModal && selectedItem && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6">
