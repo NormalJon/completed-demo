@@ -136,9 +136,11 @@ function PricebookUpdate() {
 
             {/* --- Main Content --- */}
             <main className="flex-1 p-8">
-                {/* Header / Title */}
-                <h1 className="text-2xl font-bold mb-4 text-gray-700">Pricing Discrepancies</h1>
-
+                <div className="mb-4 text-sm text-gray-500">
+                    <span>Home</span>
+                    <span className="mx-2">/</span>
+                    <span>PriceBook Updates</span>
+                </div>
                 {/* Approve / Dismiss Buttons */}
                 <div className="flex items-center space-x-2 mb-4">
                     <button
