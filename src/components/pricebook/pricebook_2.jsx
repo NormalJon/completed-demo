@@ -75,14 +75,27 @@ const PriceBook = () => {
         }
     ]);
 
-    // Sidebar items (adjust to match your real menu)
     const sideNavItems = [
-        { icon: <Building2 size={20} />, label: 'Bank & Credit Card Statements' },
-        { icon: <FileText size={20} />, label: 'Invoices & Receipts' },
-        { icon: <ScrollText size={20} />, label: 'Tax Forms' },
-        { icon: <BarChart3 size={20} />, label: 'Brokerage Statements' },
-        { icon: <ImageIcon size={20} />, label: 'Check Images' },
-        { icon: <File size={20} />, label: 'Other Documents' },
+        {
+            label: 'Pricebook Builder',
+            icon: <FileText size={20} />,
+            path: '/pricebook'
+        },
+        {
+            label: 'Pricebook Update',
+            icon: <ScrollText size={20} />,
+            path: '/pricebookupdate'
+        },
+        {
+            label: 'History',
+            icon: <BarChart3 size={20} />,
+            path: '#'
+        },
+        {
+            label: 'Refer & Earn',
+            icon: <DollarSign size={20} />,
+            path: '#'
+        },
     ];
 
     // "Approve" opens the modal
