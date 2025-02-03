@@ -85,7 +85,7 @@ const PriceBook = () => {
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 3;
+    const itemsPerPage = 10;
 
     // Search/filter state
     const [searchTerm, setSearchTerm] = useState('');
