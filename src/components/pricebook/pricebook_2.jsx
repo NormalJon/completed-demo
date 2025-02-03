@@ -1,15 +1,27 @@
 // src/components/pricebook/pricebook_2.jsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { DollarSign, X, FileText, ScrollText, BarChart3, File } from 'lucide-react';
+import {
+    DollarSign,
+    X,
+    FileText,
+    ScrollText,
+    BarChart3,
+    File,
+    ChevronUp,
+    ChevronDown,
+} from 'lucide-react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../../styles/fade.css'; // Ensure this path is correct
 
 const PriceBook = () => {
+    // State for modal and selected item
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
-    // Example data
+    // Example data; note that 'price' is stored as a string (with a '$' sign)
     const [items, setItems] = useState([
         {
             id: 33,
@@ -18,7 +30,7 @@ const PriceBook = () => {
             partNumber: 'FNWX410CH',
             description: '1 1/4" Ball Valve IP 1-1/2',
             price: '$52.10',
-            status: 'Pending'
+            status: 'Pending',
         },
         {
             id: 20,
@@ -27,7 +39,7 @@ const PriceBook = () => {
             partNumber: 'BR1701DVXR',
             description: 'ABS-1/2x3/8x3/8 dual angle stop brass',
             price: '$64.03',
-            status: 'Pending'
+            status: 'Pending',
         },
         {
             id: 17,
@@ -36,7 +48,7 @@ const PriceBook = () => {
             partNumber: 'IBRLF4D',
             description: '1/2" Brass 45',
             price: '$6.99',
-            status: 'Pending'
+            status: 'Pending',
         },
         // Additional sample items for pagination
         {
@@ -46,7 +58,7 @@ const PriceBook = () => {
             partNumber: 'PX123456',
             description: 'Example Product 1',
             price: '$10.00',
-            status: 'Pending'
+            status: 'Pending',
         },
         {
             id: 19,
@@ -55,7 +67,7 @@ const PriceBook = () => {
             partNumber: 'PY987654',
             description: 'Example Product 2',
             price: '$20.00',
-            status: 'Pending'
+            status: 'Pending',
         },
         {
             id: 21,
@@ -64,17 +76,80 @@ const PriceBook = () => {
             partNumber: 'PZ111111',
             description: 'Example Product 3',
             price: '$30.00',
-            status: 'Pending'
-        }
+            status: 'Pending',
+        },
     ]);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 3; // Adjust number of items per page as needed
+    const itemsPerPage = 3;
+
+    // Search/filter state
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Sorting state: sortConfig.key can be one of the column keys and direction is either 'ascending' or 'descending'
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+
+    // Handler for sorting when a header is clicked
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+        toast.info(`Sorted by ${key} (${direction})`);
+    };
+
+    // Helper to return an arrow icon if the column is active for sorting
+    const getSortIcon = (columnKey) => {
+        if (sortConfig.key === columnKey) {
+            return sortConfig.direction === 'ascending' ? (
+                <ChevronUp size={16} className="inline ml-1" />
+            ) : (
+                <ChevronDown size={16} className="inline ml-1" />
+            );
+        }
+        return null;
+    };
+
+    // Compute the filtered and sorted items using useMemo
+    const filteredSortedItems = useMemo(() => {
+        let filtered = items;
+        if (searchTerm) {
+            const lowerSearch = searchTerm.toLowerCase();
+            filtered = filtered.filter((item) =>
+                item.invoiceNumber.toLowerCase().includes(lowerSearch) ||
+                item.vendor.toLowerCase().includes(lowerSearch) ||
+                item.partNumber.toLowerCase().includes(lowerSearch) ||
+                item.description.toLowerCase().includes(lowerSearch)
+            );
+        }
+        if (sortConfig.key) {
+            filtered.sort((a, b) => {
+                let aVal, bVal;
+                // For price, remove the '$' sign and convert to number
+                if (sortConfig.key === 'price') {
+                    aVal = parseFloat(a.price.replace('$', ''));
+                    bVal = parseFloat(b.price.replace('$', ''));
+                } else {
+                    aVal = a[sortConfig.key];
+                    bVal = b[sortConfig.key];
+                    if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+                    if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                }
+                if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+        }
+        return filtered;
+    }, [items, searchTerm, sortConfig]);
+
+    // Pagination calculations based on the filtered/sorted items
+    const totalPages = Math.ceil(filteredSortedItems.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(items.length / itemsPerPage);
+    const currentItems = filteredSortedItems.slice(indexOfFirstItem, indexOfLastItem);
 
     // "Approve" action: open modal to configure item
     const handleApproveClick = (item) => {
@@ -85,6 +160,7 @@ const PriceBook = () => {
     // "Deny" action: remove item (with fade-out transition)
     const handleDenyClick = (id) => {
         setItems((prev) => prev.filter((item) => item.id !== id));
+        toast.warn('Item dismissed and removed');
     };
 
     // Sidebar navigation items
@@ -92,23 +168,23 @@ const PriceBook = () => {
         {
             label: 'Pricebook Builder',
             icon: <FileText size={20} />,
-            path: '/pricebook'
+            path: '/pricebook',
         },
         {
             label: 'Pricebook Update',
             icon: <ScrollText size={20} />,
-            path: '/pricebookupdate'
+            path: '/pricebookupdate',
         },
         {
             label: 'History',
             icon: <BarChart3 size={20} />,
-            path: '#'
+            path: '#',
         },
         {
             label: 'Refer & Earn',
             icon: <DollarSign size={20} />,
-            path: '#'
-        }
+            path: '#',
+        },
     ];
 
     return (
@@ -139,45 +215,94 @@ const PriceBook = () => {
 
             {/* Main Content */}
             <main className="flex-1 p-8">
-                <div className="mb-4 text-sm text-gray-500">
-                    <span>Home</span>
-                    <span className="mx-2">/</span>
-                    <span>Price Book</span>
+                <div className="mb-4 flex flex-col sm:flex-row justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                        <span>Home</span>
+                        <span className="mx-2">/</span>
+                        <span>Price Book</span>
+                    </div>
+                    {/* Search Input */}
+                    <div className="mt-2 sm:mt-0">
+                        <input
+                            type="text"
+                            placeholder="Search by invoice, vendor, part or description..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="border px-3 py-2 rounded"
+                        />
+                    </div>
                 </div>
+
                 <h1 className="text-2xl font-bold mb-6">Price Book Builder</h1>
 
                 {/* Buttons */}
                 <div className="flex gap-2 mb-4">
-                    <button className="bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300">
+                    <button
+                        onClick={() => toast.info('Refreshing list...')}
+                        className="bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300"
+                    >
                         Refresh List
                     </button>
                 </div>
 
-                {/* Table Container with Fade Transitions */}
-                <div className="bg-white border rounded shadow p-4">
-                    <table className="w-full text-left border-collapse">
+                {/* Table Container with Fixed Sizing and Fade Transitions */}
+                <div
+                    className="bg-white border rounded shadow p-4 overflow-x-auto"
+                    style={{ minWidth: '1000px' }}
+                >
+                    <table
+                        className="w-full text-left border-collapse"
+                        style={{ tableLayout: 'fixed' }}
+                    >
                         <thead className="bg-gray-100">
                             <tr>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">#</th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Invoice Number
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-10">#</th>
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
+                                    onClick={() => handleSort('invoiceNumber')}
+                                >
+                                    Invoice Number {getSortIcon('invoiceNumber')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Vendor
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
+                                    onClick={() => handleSort('vendor')}
+                                >
+                                    Vendor {getSortIcon('vendor')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Part Number
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
+                                    onClick={() => handleSort('partNumber')}
+                                >
+                                    Part Number {getSortIcon('partNumber')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Description
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '250px' }}
+                                    onClick={() => handleSort('description')}
+                                >
+                                    Description {getSortIcon('description')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Price
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
+                                    onClick={() => handleSort('price')}
+                                >
+                                    Price {getSortIcon('price')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Status
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
+                                    onClick={() => handleSort('status')}
+                                >
+                                    Status {getSortIcon('status')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600" style={{ width: '200px' }}>
                                     Actions
                                 </th>
                             </tr>
@@ -223,8 +348,8 @@ const PriceBook = () => {
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
                                 className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white text-gray-700 hover:bg-gray-200'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {pageNumber}
@@ -259,7 +384,6 @@ const PriceBook = () => {
                                 />
                                 <div className="text-xs text-gray-300 mt-1">(0/31 Characters)</div>
                             </div>
-
                             {/* Name */}
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Name</label>
@@ -269,7 +393,6 @@ const PriceBook = () => {
                                     className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
-
                             {/* Description */}
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Description</label>
@@ -279,7 +402,6 @@ const PriceBook = () => {
                                     rows="3"
                                 />
                             </div>
-
                             {/* Price Information */}
                             <h3 className="text-lg font-semibold mt-4 text-gray-200">Price Information</h3>
                             <div>
@@ -314,7 +436,6 @@ const PriceBook = () => {
                                     className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
-
                             {/* Hours */}
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Hours</label>
@@ -323,7 +444,6 @@ const PriceBook = () => {
                                     className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
-
                             {/* Options */}
                             <h3 className="text-lg font-semibold mt-4">Options</h3>
                             <div className="space-y-2">
@@ -350,7 +470,6 @@ const PriceBook = () => {
                                     <span className="ml-2">Exclude from Pricebook Wizard</span>
                                 </label>
                             </div>
-
                             <div className="flex justify-end space-x-2 mt-4">
                                 <button
                                     onClick={() => setShowModal(false)}
@@ -366,6 +485,8 @@ const PriceBook = () => {
                     </div>
                 </div>
             )}
+            {/* Toast Notifications Container */}
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </div>
     );
 };
