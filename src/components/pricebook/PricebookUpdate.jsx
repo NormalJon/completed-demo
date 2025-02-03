@@ -110,7 +110,7 @@ function PricebookUpdate() {
         setSelectedIds((prevSelected) =>
             prevSelected.filter((itemId) => itemId !== id)
         );
-        toast.success('Item updated and removed');
+        toast.success('ServiceTitan Item Updated');
     };
 
     const handleDismiss = (id) => {
@@ -118,7 +118,7 @@ function PricebookUpdate() {
         setSelectedIds((prevSelected) =>
             prevSelected.filter((itemId) => itemId !== id)
         );
-        toast.warn('Item dismissed and removed');
+        toast.warn('Item dismissed');
     };
 
     // Handlers for bulk actions
@@ -349,8 +349,8 @@ function PricebookUpdate() {
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
                                 className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {pageNumber}
