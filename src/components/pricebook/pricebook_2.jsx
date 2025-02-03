@@ -231,7 +231,7 @@ const PriceBook = () => {
                         className="cursor-pointer flex items-center"
                         onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                     >
-                        <span className="font-semibold">Ashton Demo</span>
+                        <span className="font-semibold">Demo User</span>
                         <ChevronDown size={16} className="ml-2" />
                     </div>
                     {userDropdownOpen && (
