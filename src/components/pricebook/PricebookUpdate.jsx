@@ -211,7 +211,7 @@ function PricebookUpdate() {
                 <div className="p-4 border-t border-[#1F2F3D] text-xs">
                     ToolboxTechs Business Trial
                     <div>200 pages / month</div>
-                    <div>Subscription Pages Left: 197</div>
+                    <div>Subscription Pages Left: 177</div>
                 </div>
                 {/* Demo User Dropdown Section */}
                 <div className="relative p-4 border-t border-[#1F2F3D] text-xs">
@@ -219,7 +219,7 @@ function PricebookUpdate() {
                         className="cursor-pointer flex items-center"
                         onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                     >
-                        <span className="font-semibold">Demo User</span>
+                        <span className="font-semibold">Ashton Demo</span>
                         <ChevronDown size={16} className="ml-2" />
                     </div>
                     {userDropdownOpen && (
@@ -382,8 +382,8 @@ function PricebookUpdate() {
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
                                 className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {pageNumber}
