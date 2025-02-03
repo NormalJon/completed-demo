@@ -1,4 +1,4 @@
-// src/PriceBook.jsx
+//Src//Components//pricebook//pricebook_2.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DollarSign } from 'lucide-react';
