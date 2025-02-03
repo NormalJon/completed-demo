@@ -1,7 +1,14 @@
 // src/components/pricebook/PricebookUpdate.jsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { DollarSign, FileText, ScrollText, BarChart3 } from 'lucide-react';
+import {
+    DollarSign,
+    FileText,
+    ScrollText,
+    BarChart3,
+    ChevronUp,
+    ChevronDown,
+} from 'lucide-react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -39,9 +46,10 @@ function PricebookUpdate() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const [searchTerm, setSearchTerm] = useState('');
+    // sortConfig.key can be one of: 'itemCode', 'description', 'invoicePrice', 'pricebookPrice', or 'difference'
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
-    // Function to update the sort configuration when a header is clicked
+    // Update sort configuration when a header is clicked
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -51,23 +59,28 @@ function PricebookUpdate() {
         toast.info(`Sorted by ${key} (${direction})`);
     };
 
-    // Compute the filtered and sorted items using useMemo
+    // Compute filtered and sorted items. Note: For the 'difference' sort key we compute the difference.
     const filteredSortedItems = useMemo(() => {
         let filtered = items;
         if (searchTerm) {
             const lowerSearch = searchTerm.toLowerCase();
-            filtered = filtered.filter(item =>
+            filtered = filtered.filter((item) =>
                 item.itemCode.toLowerCase().includes(lowerSearch) ||
                 item.description.toLowerCase().includes(lowerSearch)
             );
         }
         if (sortConfig.key) {
             filtered.sort((a, b) => {
-                let aVal = a[sortConfig.key];
-                let bVal = b[sortConfig.key];
-                // If values are strings, compare in lowercase
-                if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-                if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                let aVal, bVal;
+                if (sortConfig.key === 'difference') {
+                    aVal = a.invoicePrice - a.pricebookPrice;
+                    bVal = b.invoicePrice - b.pricebookPrice;
+                } else {
+                    aVal = a[sortConfig.key];
+                    bVal = b[sortConfig.key];
+                    if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+                    if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                }
                 if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
                 if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
                 return 0;
@@ -76,7 +89,7 @@ function PricebookUpdate() {
         return filtered;
     }, [items, searchTerm, sortConfig]);
 
-    // Calculate pagination values based on filtered and sorted items
+    // Pagination calculations based on the filtered & sorted items
     const totalPages = Math.ceil(filteredSortedItems.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -91,7 +104,7 @@ function PricebookUpdate() {
         );
     };
 
-    // Handler for approving (updating) an individual item
+    // Handlers for approving (updating) or dismissing an individual item
     const handleApprove = (id) => {
         setItems((prevItems) => prevItems.filter((item) => item.id !== id));
         setSelectedIds((prevSelected) =>
@@ -100,7 +113,6 @@ function PricebookUpdate() {
         toast.success('Item updated and removed');
     };
 
-    // Handler for dismissing an individual item
     const handleDismiss = (id) => {
         setItems((prevItems) => prevItems.filter((item) => item.id !== id));
         setSelectedIds((prevSelected) =>
@@ -138,7 +150,19 @@ function PricebookUpdate() {
         return <span>$0.00</span>;
     };
 
-    // Sidebar navigation items (as before)
+    // Helper function to return sort arrow icon if a column is active
+    const getSortIcon = (columnKey) => {
+        if (sortConfig.key === columnKey) {
+            return sortConfig.direction === 'ascending' ? (
+                <ChevronUp size={16} className="inline ml-1" />
+            ) : (
+                <ChevronDown size={16} className="inline ml-1" />
+            );
+        }
+        return null;
+    };
+
+    // Sidebar navigation items
     const sideNavItems = [
         {
             label: 'Pricebook Builder',
@@ -237,28 +261,31 @@ function PricebookUpdate() {
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
                                     onClick={() => handleSort('itemCode')}
                                 >
-                                    Item Code
+                                    Item Code {getSortIcon('itemCode')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
                                     onClick={() => handleSort('description')}
                                 >
-                                    Description
+                                    Description {getSortIcon('description')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
                                     onClick={() => handleSort('invoicePrice')}
                                 >
-                                    Invoice Price
+                                    Invoice Price {getSortIcon('invoicePrice')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
                                     onClick={() => handleSort('pricebookPrice')}
                                 >
-                                    Pricebook Cost
+                                    Pricebook Cost {getSortIcon('pricebookPrice')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
-                                    Difference
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    onClick={() => handleSort('difference')}
+                                >
+                                    Difference {getSortIcon('difference')}
                                 </th>
                                 <th className="py-3 px-4 text-sm font-semibold text-gray-600">
                                     Actions
