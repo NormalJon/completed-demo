@@ -13,8 +13,6 @@ import {
 } from 'lucide-react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ToastContainer, toast } from 'react-toastify';
-import { ChevronDown } from 'lucide-react';
-
 import 'react-toastify/dist/ReactToastify.css';
 import '../../styles/fade.css'; // Ensure this path is correct
 
@@ -23,6 +21,7 @@ const PriceBook = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
+    // State for the user login dropdown in the sidebar
     const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
     // Example data; note that 'price' is stored as a string (with a '$' sign)
@@ -382,8 +381,8 @@ const PriceBook = () => {
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
                                 className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-white text-gray-700 hover:bg-gray-200'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {pageNumber}
@@ -479,7 +478,6 @@ const PriceBook = () => {
                                     <option value="equipment">Equipment</option>
                                 </select>
                             </div>
-
                             {/* Hours */}
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Hours</label>
