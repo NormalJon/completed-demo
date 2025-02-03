@@ -13,6 +13,9 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../../styles/fade.css'; // Adjust path if needed
+// Import ChevronDown at the top if not already imported:
+import { ChevronDown } from 'lucide-react';
+
 
 function PricebookUpdate() {
     // Initial example data for the pricebook
@@ -209,6 +212,25 @@ function PricebookUpdate() {
                     ToolboxTechs Business Trial
                     <div>200 pages / month</div>
                     <div>Subscription Pages Left: 197</div>
+                </div>
+                {/* New User Login Dropdown */}
+                <div className="relative p-4 border-t border-[#1F2F3D] text-xs">
+                    <div
+                        className="cursor-pointer flex items-center"
+                        onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    >
+                        <span className="font-semibold">Demo User</span>
+                        <ChevronDown size={16} className="ml-2" />
+                    </div>
+                    {userDropdownOpen && (
+                        <div className="absolute left-0 bottom-full mb-2 w-full bg-white text-gray-700 rounded shadow-lg">
+                            <ul>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Help Center</li>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </aside>
 
