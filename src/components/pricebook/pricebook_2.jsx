@@ -163,6 +163,17 @@ const PriceBook = () => {
         toast.warn('Item dismissed and removed');
     };
 
+    // New handler for approving an item from the modal.
+    // When clicked, the selected item is removed from the list and the modal is closed.
+    const handleModalApprove = () => {
+        if (selectedItem) {
+            setItems((prev) => prev.filter((item) => item.id !== selectedItem.id));
+            toast.success('Item approved and removed');
+            setShowModal(false);
+            setSelectedItem(null);
+        }
+    };
+
     // Sidebar navigation items
     const sideNavItems = [
         {
@@ -477,7 +488,11 @@ const PriceBook = () => {
                                 >
                                     Cancel
                                 </button>
-                                <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500">
+                                {/* Updated Approve Button in Modal */}
+                                <button
+                                    onClick={handleModalApprove}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+                                >
                                     Approve
                                 </button>
                             </div>
