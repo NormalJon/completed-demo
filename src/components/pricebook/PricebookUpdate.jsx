@@ -44,7 +44,7 @@ function PricebookUpdate() {
     // State for bulk selection, pagination, search, and sorting
     const [selectedIds, setSelectedIds] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
     const [searchTerm, setSearchTerm] = useState('');
     // sortConfig.key can be one of: 'itemCode', 'description', 'invoicePrice', 'pricebookPrice', or 'difference'
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
