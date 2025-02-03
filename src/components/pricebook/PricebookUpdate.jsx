@@ -1,9 +1,11 @@
 // src/components/pricebook/PricebookUpdate.jsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { DollarSign, FileText, ScrollText, BarChart3 } from 'lucide-react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import '../../styles/fade.css'; // Adjusted import path for fade.css
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import '../../styles/fade.css'; // Adjust path if needed
 
 function PricebookUpdate() {
     // Initial example data for the pricebook
@@ -29,44 +31,58 @@ function PricebookUpdate() {
             invoicePrice: 6.99,
             pricebookPrice: 7.59,
         },
-        {
-            id: 4,
-            itemCode: 'EXAMPLE1',
-            description: 'Example Item 1',
-            invoicePrice: 10.00,
-            pricebookPrice: 9.50,
-        },
-        {
-            id: 5,
-            itemCode: 'EXAMPLE2',
-            description: 'Example Item 2',
-            invoicePrice: 20.00,
-            pricebookPrice: 18.50,
-        },
-        {
-            id: 6,
-            itemCode: 'EXAMPLE3',
-            description: 'Example Item 3',
-            invoicePrice: 30.00,
-            pricebookPrice: 25.00,
-        },
-        // Add more items if needed...
+        // Add more items as needed for demo purposes
     ]);
 
-    // Track selected row IDs for bulk actions
+    // State for bulk selection, pagination, search and sorting
     const [selectedIds, setSelectedIds] = useState([]);
-
-    // Pagination state: current page and items per page
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
-    // Calculate indexes for the current page
+    // Function to update the sort configuration when a header is clicked
+    const handleSort = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+        toast.info(`Sorted by ${key} (${direction})`);
+    };
+
+    // Compute the filtered and sorted items using useMemo
+    const filteredSortedItems = useMemo(() => {
+        let filtered = items;
+        if (searchTerm) {
+            const lowerSearch = searchTerm.toLowerCase();
+            filtered = filtered.filter(item =>
+                item.itemCode.toLowerCase().includes(lowerSearch) ||
+                item.description.toLowerCase().includes(lowerSearch)
+            );
+        }
+        if (sortConfig.key) {
+            filtered.sort((a, b) => {
+                let aVal = a[sortConfig.key];
+                let bVal = b[sortConfig.key];
+                // If values are strings, compare in lowercase
+                if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+                if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
+                if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+                return 0;
+            });
+        }
+        return filtered;
+    }, [items, searchTerm, sortConfig]);
+
+    // Calculate pagination values based on filtered and sorted items
+    const totalPages = Math.ceil(filteredSortedItems.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(items.length / itemsPerPage);
+    const currentItems = filteredSortedItems.slice(indexOfFirstItem, indexOfLastItem);
 
-    // Toggle a row’s checkbox
+    // Handler for toggling a row’s checkbox
     const handleCheckboxChange = (id) => {
         setSelectedIds((prev) =>
             prev.includes(id)
@@ -75,54 +91,54 @@ function PricebookUpdate() {
         );
     };
 
-    // Approve (update) an individual item: animate and then remove it from the list
+    // Handler for approving (updating) an individual item
     const handleApprove = (id) => {
-        // (Optional: Insert API call or update logic here)
         setItems((prevItems) => prevItems.filter((item) => item.id !== id));
         setSelectedIds((prevSelected) =>
             prevSelected.filter((itemId) => itemId !== id)
         );
+        toast.success('Item updated and removed');
     };
 
-    // Dismiss an individual item
+    // Handler for dismissing an individual item
     const handleDismiss = (id) => {
-        // (Optional: Insert dismiss logic here)
         setItems((prevItems) => prevItems.filter((item) => item.id !== id));
         setSelectedIds((prevSelected) =>
             prevSelected.filter((itemId) => itemId !== id)
         );
+        toast.warn('Item dismissed and removed');
     };
 
-    // Bulk update (approve) all selected items
+    // Handlers for bulk actions
     const handleApproveSelected = () => {
         setItems((prevItems) =>
             prevItems.filter((item) => !selectedIds.includes(item.id))
         );
         setSelectedIds([]);
+        toast.success('Selected items updated');
     };
 
-    // Bulk dismiss all selected items
     const handleDismissSelected = () => {
         setItems((prevItems) =>
             prevItems.filter((item) => !selectedIds.includes(item.id))
         );
         setSelectedIds([]);
+        toast.warn('Selected items dismissed');
     };
 
-    // Format the price difference with color coding
-    function formatDifference(invoice, pricebook) {
+    // A helper function to format the difference between invoice and pricebook prices
+    const formatDifference = (invoice, pricebook) => {
         const diff = invoice - pricebook;
         const absDiff = Math.abs(diff).toFixed(2);
-
         if (diff > 0) {
             return <span className="text-green-600 font-semibold">+${absDiff}</span>;
         } else if (diff < 0) {
             return <span className="text-red-500 font-semibold">-${absDiff}</span>;
         }
         return <span>$0.00</span>;
-    }
+    };
 
-    // Sidebar navigation items
+    // Sidebar navigation items (as before)
     const sideNavItems = [
         {
             label: 'Pricebook Builder',
@@ -174,10 +190,25 @@ function PricebookUpdate() {
 
             {/* Main Content */}
             <main className="flex-1 p-8">
-                <div className="mb-4 text-sm text-gray-500">
-                    <span>Home</span>
-                    <span className="mx-2">/</span>
-                    <span>PriceBook Updates</span>
+                <div className="mb-4 flex flex-col sm:flex-row justify-between items-center">
+                    <div className="text-sm text-gray-500">
+                        <span>Home</span>
+                        <span className="mx-2">/</span>
+                        <span>PriceBook Updates</span>
+                    </div>
+                    {/* Search Input */}
+                    <div className="mt-2 sm:mt-0">
+                        <input
+                            type="text"
+                            placeholder="Search by code or description..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="border px-3 py-2 rounded"
+                        />
+                    </div>
                 </div>
 
                 {/* Bulk Action Buttons */}
@@ -202,16 +233,28 @@ function PricebookUpdate() {
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-10"></th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    onClick={() => handleSort('itemCode')}
+                                >
                                     Item Code
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    onClick={() => handleSort('description')}
+                                >
                                     Description
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    onClick={() => handleSort('invoicePrice')}
+                                >
                                     Invoice Price
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                <th
+                                    className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    onClick={() => handleSort('pricebookPrice')}
+                                >
                                     Pricebook Cost
                                 </th>
                                 <th className="py-3 px-4 text-sm font-semibold text-gray-600">
@@ -223,55 +266,49 @@ function PricebookUpdate() {
                             </tr>
                         </thead>
                         <TransitionGroup component="tbody">
-                            {currentItems.map((item) => {
-                                const isSelected = selectedIds.includes(item.id);
-                                return (
-                                    <CSSTransition key={item.id} timeout={500} classNames="fade">
-                                        <tr
-                                            className={`border-t ${isSelected ? 'bg-gray-50' : 'bg-white'
-                                                } hover:bg-gray-50`}
-                                        >
-                                            <td className="py-3 px-4 text-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={isSelected}
-                                                    onChange={() => handleCheckboxChange(item.id)}
-                                                    className="form-checkbox text-blue-600"
-                                                />
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-700 font-medium">
-                                                {item.itemCode}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-700">
-                                                {item.description}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-700">
-                                                ${item.invoicePrice.toFixed(2)}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-700">
-                                                ${item.pricebookPrice.toFixed(2)}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm text-gray-700 font-semibold">
-                                                {formatDifference(item.invoicePrice, item.pricebookPrice)}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm">
-                                                <button
-                                                    onClick={() => handleApprove(item.id)}
-                                                    className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2"
-                                                >
-                                                    Update
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDismiss(item.id)}
-                                                    className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                                                >
-                                                    Dismiss
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </CSSTransition>
-                                );
-                            })}
+                            {currentItems.map((item) => (
+                                <CSSTransition key={item.id} timeout={500} classNames="fade">
+                                    <tr className="border-t hover:bg-gray-50">
+                                        <td className="py-3 px-4 text-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedIds.includes(item.id)}
+                                                onChange={() => handleCheckboxChange(item.id)}
+                                                className="form-checkbox text-blue-600"
+                                            />
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700 font-medium">
+                                            {item.itemCode}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">
+                                            {item.description}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">
+                                            ${item.invoicePrice.toFixed(2)}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">
+                                            ${item.pricebookPrice.toFixed(2)}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700 font-semibold">
+                                            {formatDifference(item.invoicePrice, item.pricebookPrice)}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm">
+                                            <button
+                                                onClick={() => handleApprove(item.id)}
+                                                className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2"
+                                            >
+                                                Update
+                                            </button>
+                                            <button
+                                                onClick={() => handleDismiss(item.id)}
+                                                className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                                            >
+                                                Dismiss
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </CSSTransition>
+                            ))}
                         </TransitionGroup>
                     </table>
                 </div>
@@ -295,6 +332,8 @@ function PricebookUpdate() {
                     })}
                 </div>
             </main>
+            {/* Toast Notifications Container */}
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </div>
     );
 }
