@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DollarSign, FileText, ScrollText, BarChart3 } from 'lucide-react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import '../../styles/fade.css';
-; // Make sure this file exists in the same folder (or adjust the path accordingly)
+import '../../styles/fade.css'; // Adjusted import path for fade.css
 
 function PricebookUpdate() {
     // Initial example data for the pricebook
@@ -30,19 +29,42 @@ function PricebookUpdate() {
             invoicePrice: 6.99,
             pricebookPrice: 7.59,
         },
+        {
+            id: 4,
+            itemCode: 'EXAMPLE1',
+            description: 'Example Item 1',
+            invoicePrice: 10.00,
+            pricebookPrice: 9.50,
+        },
+        {
+            id: 5,
+            itemCode: 'EXAMPLE2',
+            description: 'Example Item 2',
+            invoicePrice: 20.00,
+            pricebookPrice: 18.50,
+        },
+        {
+            id: 6,
+            itemCode: 'EXAMPLE3',
+            description: 'Example Item 3',
+            invoicePrice: 30.00,
+            pricebookPrice: 25.00,
+        },
+        // Add more items if needed...
     ]);
 
     // Track selected row IDs for bulk actions
     const [selectedIds, setSelectedIds] = useState([]);
-    // Control the visibility of the new entry modal
-    const [showNewEntryForm, setShowNewEntryForm] = useState(false);
-    // State for the new entry form fields
-    const [newEntry, setNewEntry] = useState({
-        itemCode: '',
-        description: '',
-        invoicePrice: '',
-        pricebookPrice: '',
-    });
+
+    // Pagination state: current page and items per page
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    // Calculate indexes for the current page
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(items.length / itemsPerPage);
 
     // Toggle a row’s checkbox
     const handleCheckboxChange = (id) => {
@@ -85,37 +107,6 @@ function PricebookUpdate() {
             prevItems.filter((item) => !selectedIds.includes(item.id))
         );
         setSelectedIds([]);
-    };
-
-    // Update new entry form state on input change
-    const handleNewEntryChange = (e) => {
-        const { name, value } = e.target;
-        setNewEntry((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    // Handle the new entry form submission
-    const handleNewEntrySubmit = (e) => {
-        e.preventDefault();
-        const newId = Date.now(); // Using current time as a unique ID
-        const newItem = {
-            id: newId,
-            itemCode: newEntry.itemCode,
-            description: newEntry.description,
-            invoicePrice: parseFloat(newEntry.invoicePrice),
-            pricebookPrice: parseFloat(newEntry.pricebookPrice),
-        };
-        setItems((prevItems) => [...prevItems, newItem]);
-        // Reset the form fields and close the modal
-        setNewEntry({
-            itemCode: '',
-            description: '',
-            invoicePrice: '',
-            pricebookPrice: '',
-        });
-        setShowNewEntryForm(false);
     };
 
     // Format the price difference with color coding
@@ -183,12 +174,10 @@ function PricebookUpdate() {
 
             {/* Main Content */}
             <main className="flex-1 p-8">
-                <div className="mb-4 flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
-                        <span>Home</span>
-                        <span className="mx-2">/</span>
-                        <span>PriceBook Updates</span>
-                    </div>
+                <div className="mb-4 text-sm text-gray-500">
+                    <span>Home</span>
+                    <span className="mx-2">/</span>
+                    <span>PriceBook Updates</span>
                 </div>
 
                 {/* Bulk Action Buttons */}
@@ -234,7 +223,7 @@ function PricebookUpdate() {
                             </tr>
                         </thead>
                         <TransitionGroup component="tbody">
-                            {items.map((item) => {
+                            {currentItems.map((item) => {
                                 const isSelected = selectedIds.includes(item.id);
                                 return (
                                     <CSSTransition key={item.id} timeout={500} classNames="fade">
@@ -286,87 +275,26 @@ function PricebookUpdate() {
                         </TransitionGroup>
                     </table>
                 </div>
-            </main>
 
-            {/* New Entry Modal */}
-            {showNewEntryForm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-semibold">Add New Entry</h2>
+                {/* Pagination Controls */}
+                <div className="flex justify-center mt-4">
+                    {Array.from({ length: totalPages }, (_, index) => {
+                        const pageNumber = index + 1;
+                        return (
                             <button
-                                onClick={() => setShowNewEntryForm(false)}
-                                className="text-gray-600 hover:text-gray-800 text-2xl leading-none"
+                                key={pageNumber}
+                                onClick={() => setCurrentPage(pageNumber)}
+                                className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-200'
+                                    }`}
                             >
-                                &times;
+                                {pageNumber}
                             </button>
-                        </div>
-                        <form onSubmit={handleNewEntrySubmit}>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">Item Code</label>
-                                <input
-                                    type="text"
-                                    name="itemCode"
-                                    value={newEntry.itemCode}
-                                    onChange={handleNewEntryChange}
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">Description</label>
-                                <input
-                                    type="text"
-                                    name="description"
-                                    value={newEntry.description}
-                                    onChange={handleNewEntryChange}
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">Invoice Price</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    name="invoicePrice"
-                                    value={newEntry.invoicePrice}
-                                    onChange={handleNewEntryChange}
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium mb-1">Pricebook Cost</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    name="pricebookPrice"
-                                    value={newEntry.pricebookPrice}
-                                    onChange={handleNewEntryChange}
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowNewEntryForm(false)}
-                                    className="px-4 py-2 border rounded text-gray-600 hover:bg-gray-200"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500"
-                                >
-                                    Add Entry
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        );
+                    })}
                 </div>
-            )}
+            </main>
         </div>
     );
 }
