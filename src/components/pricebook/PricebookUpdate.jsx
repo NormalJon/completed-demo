@@ -49,6 +49,9 @@ function PricebookUpdate() {
     // sortConfig.key can be one of: 'itemCode', 'description', 'invoicePrice', 'pricebookPrice', or 'difference'
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
+    // New state for managing the Demo User dropdown
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
     // Update sort configuration when a header is clicked
     const handleSort = (key) => {
         let direction = 'ascending';
@@ -59,7 +62,7 @@ function PricebookUpdate() {
         toast.info(`Sorted by ${key} (${direction})`);
     };
 
-    // Compute filtered and sorted items. For the 'difference' sort key we compute the difference.
+    // Compute filtered and sorted items. For the 'difference' sort key, we compute the difference.
     const filteredSortedItems = useMemo(() => {
         let filtered = items;
         if (searchTerm) {
@@ -210,6 +213,25 @@ function PricebookUpdate() {
                     <div>200 pages / month</div>
                     <div>Subscription Pages Left: 197</div>
                 </div>
+                {/* Demo User Dropdown Section */}
+                <div className="relative p-4 border-t border-[#1F2F3D] text-xs">
+                    <div
+                        className="cursor-pointer flex items-center"
+                        onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    >
+                        <span className="font-semibold">Demo User</span>
+                        <ChevronDown size={16} className="ml-2" />
+                    </div>
+                    {userDropdownOpen && (
+                        <div className="absolute left-0 bottom-full mb-2 w-full bg-white text-gray-700 rounded shadow-lg">
+                            <ul>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Help Center</li>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
             </aside>
 
             {/* Main Content */}
@@ -252,8 +274,14 @@ function PricebookUpdate() {
                 </div>
 
                 {/* Table Container with Fixed Sizing and Fade Transitions */}
-                <div className="bg-white border rounded shadow p-4 overflow-x-auto" style={{ minWidth: '1000px' }}>
-                    <table className="w-full text-left border-collapse" style={{ tableLayout: 'fixed' }}>
+                <div
+                    className="bg-white border rounded shadow p-4 overflow-x-auto"
+                    style={{ minWidth: '1000px' }}
+                >
+                    <table
+                        className="w-full text-left border-collapse"
+                        style={{ tableLayout: 'fixed' }}
+                    >
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-10"></th>
@@ -309,16 +337,32 @@ function PricebookUpdate() {
                                                 className="form-checkbox text-blue-600"
                                             />
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-gray-700 font-medium">{item.itemCode}</td>
-                                        <td className="py-3 px-4 text-sm text-gray-700">{item.description}</td>
-                                        <td className="py-3 px-4 text-sm text-gray-700">${item.invoicePrice.toFixed(2)}</td>
-                                        <td className="py-3 px-4 text-sm text-gray-700">${item.pricebookPrice.toFixed(2)}</td>
-                                        <td className="py-3 px-4 text-sm text-gray-700 font-semibold">{formatDifference(item.invoicePrice, item.pricebookPrice)}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700 font-medium">
+                                            {item.itemCode}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">
+                                            {item.description}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">
+                                            ${item.invoicePrice.toFixed(2)}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">
+                                            ${item.pricebookPrice.toFixed(2)}
+                                        </td>
+                                        <td className="py-3 px-4 text-sm text-gray-700 font-semibold">
+                                            {formatDifference(item.invoicePrice, item.pricebookPrice)}
+                                        </td>
                                         <td className="py-3 px-4 text-sm">
-                                            <button onClick={() => handleApprove(item.id)} className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2">
+                                            <button
+                                                onClick={() => handleApprove(item.id)}
+                                                className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2"
+                                            >
                                                 Update
                                             </button>
-                                            <button onClick={() => handleDismiss(item.id)} className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">
+                                            <button
+                                                onClick={() => handleDismiss(item.id)}
+                                                className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                                            >
                                                 Dismiss
                                             </button>
                                         </td>
@@ -337,7 +381,9 @@ function PricebookUpdate() {
                             <button
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
-                                className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-200'
+                                className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-white text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {pageNumber}
