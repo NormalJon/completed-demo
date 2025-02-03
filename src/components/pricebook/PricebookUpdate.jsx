@@ -189,12 +189,6 @@ function PricebookUpdate() {
                         <span className="mx-2">/</span>
                         <span>PriceBook Updates</span>
                     </div>
-                    <button
-                        onClick={() => setShowNewEntryForm(true)}
-                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
-                    >
-                        Add New Entry
-                    </button>
                 </div>
 
                 {/* Bulk Action Buttons */}
