@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ToastContainer, toast } from 'react-toastify';
+import { ChevronDown } from 'lucide-react';
+
 import 'react-toastify/dist/ReactToastify.css';
 import '../../styles/fade.css'; // Ensure this path is correct
 
@@ -20,6 +22,8 @@ const PriceBook = () => {
     // State for modal and selected item
     const [showModal, setShowModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
     // Example data; note that 'price' is stored as a string (with a '$' sign)
     const [items, setItems] = useState([
@@ -221,6 +225,25 @@ const PriceBook = () => {
                     ToolboxTechs Business Trial
                     <div>200 pages / month</div>
                     <div>Subscription Pages Left: 177</div>
+                </div>
+                {/* User Login Dropdown Section */}
+                <div className="relative p-4 border-t border-[#1F2F3D] text-xs">
+                    <div
+                        className="cursor-pointer flex items-center"
+                        onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    >
+                        <span className="font-semibold">Demo User</span>
+                        <ChevronDown size={16} className="ml-2" />
+                    </div>
+                    {userDropdownOpen && (
+                        <div className="absolute left-0 bottom-full mb-2 w-full bg-white text-gray-700 rounded shadow-lg">
+                            <ul>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Settings</li>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Help Center</li>
+                                <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Logout</li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </aside>
 
