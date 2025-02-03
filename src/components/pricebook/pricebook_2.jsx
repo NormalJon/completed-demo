@@ -1,16 +1,9 @@
-//Src//Components//pricebook//pricebook_2.jsx
+// src/components/pricebook/pricebook_2.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DollarSign } from 'lucide-react';
-import {
-    X,
-    Building2,
-    FileText,
-    ScrollText,
-    BarChart3,
-    Image as ImageIcon,
-    File
-} from 'lucide-react';
+import { DollarSign, X, FileText, ScrollText, BarChart3, File } from 'lucide-react';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import '../../styles/fade.css'; // Ensure this path is correct
 
 const PriceBook = () => {
     const [showModal, setShowModal] = useState(false);
@@ -44,21 +37,57 @@ const PriceBook = () => {
             description: '1/2" Brass 45',
             price: '$6.99',
             status: 'Pending'
+        },
+        // Additional sample items for pagination
+        {
+            id: 18,
+            invoiceNumber: '1234567890',
+            vendor: 'Mitsubushi',
+            partNumber: 'PX123456',
+            description: 'Example Product 1',
+            price: '$10.00',
+            status: 'Pending'
+        },
+        {
+            id: 19,
+            invoiceNumber: '0987654321',
+            vendor: 'Andrew Sheret',
+            partNumber: 'PY987654',
+            description: 'Example Product 2',
+            price: '$20.00',
+            status: 'Pending'
+        },
+        {
+            id: 21,
+            invoiceNumber: '1111111111',
+            vendor: 'RSL',
+            partNumber: 'PZ111111',
+            description: 'Example Product 3',
+            price: '$30.00',
+            status: 'Pending'
         }
     ]);
 
-    // "Approve" -> open modal
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3; // Adjust number of items per page as needed
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(items.length / itemsPerPage);
+
+    // "Approve" action: open modal to configure item
     const handleApproveClick = (item) => {
         setSelectedItem(item);
         setShowModal(true);
     };
 
-    // "Deny" -> remove row (demo only)
+    // "Deny" action: remove item (with fade-out transition)
     const handleDenyClick = (id) => {
         setItems((prev) => prev.filter((item) => item.id !== id));
     };
 
-    // The sidebar items you mentioned:
+    // Sidebar navigation items
     const sideNavItems = [
         {
             label: 'Pricebook Builder',
@@ -84,7 +113,7 @@ const PriceBook = () => {
 
     return (
         <div className="flex min-h-screen bg-white">
-            {/* --- Sidebar --- */}
+            {/* Sidebar */}
             <aside className="w-64 bg-[#2C3E50] text-white flex flex-col">
                 <div className="px-4 py-5 border-b border-[#1F2F3D]">
                     <h1 className="text-xl font-semibold">ToolboxTechs</h1>
@@ -108,7 +137,7 @@ const PriceBook = () => {
                 </div>
             </aside>
 
-            {/* --- Main Content --- */}
+            {/* Main Content */}
             <main className="flex-1 p-8">
                 <div className="mb-4 text-sm text-gray-500">
                     <span>Home</span>
@@ -124,7 +153,7 @@ const PriceBook = () => {
                     </button>
                 </div>
 
-                {/* --- Updated Table Container --- */}
+                {/* Table Container with Fade Transitions */}
                 <div className="bg-white border rounded shadow p-4">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-gray-100">
@@ -153,39 +182,59 @@ const PriceBook = () => {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {items.map((item) => (
-                                <tr
-                                    key={item.id}
-                                    className="border-t hover:bg-gray-50"
-                                >
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.id}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.invoiceNumber}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.vendor}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.partNumber}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.description}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.price}</td>
-                                    <td className="py-3 px-4 text-sm text-gray-700">{item.status}</td>
-                                    <td className="py-3 px-4 text-sm">
-                                        <button
-                                            onClick={() => handleApproveClick(item)}
-                                            className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2"
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            onClick={() => handleDenyClick(item.id)}
-                                            className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
-                                        >
-                                            Deny
-                                        </button>
-                                    </td>
-                                </tr>
+                        <TransitionGroup component="tbody">
+                            {currentItems.map((item) => (
+                                <CSSTransition key={item.id} timeout={500} classNames="fade">
+                                    <tr className="border-t hover:bg-gray-50">
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.id}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.invoiceNumber}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.vendor}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.partNumber}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.description}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.price}</td>
+                                        <td className="py-3 px-4 text-sm text-gray-700">{item.status}</td>
+                                        <td className="py-3 px-4 text-sm">
+                                            <button
+                                                onClick={() => handleApproveClick(item)}
+                                                className="bg-[#4A69BD] text-white px-3 py-1 rounded hover:bg-[#3E5BA9] mr-2"
+                                            >
+                                                Approve
+                                            </button>
+                                            <button
+                                                onClick={() => handleDenyClick(item.id)}
+                                                className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                                            >
+                                                Deny
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </CSSTransition>
                             ))}
-                        </tbody>
+                        </TransitionGroup>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-center mt-4">
+                    {Array.from({ length: totalPages }, (_, index) => {
+                        const pageNumber = index + 1;
+                        return (
+                            <button
+                                key={pageNumber}
+                                onClick={() => setCurrentPage(pageNumber)}
+                                className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-200'
+                                    }`}
+                            >
+                                {pageNumber}
+                            </button>
+                        );
+                    })}
+                </div>
             </main>
+
+            {/* Modal for Item Configuration */}
             {showModal && selectedItem && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-md p-6">
@@ -198,7 +247,6 @@ const PriceBook = () => {
                                 <X size={24} />
                             </button>
                         </div>
-
                         {/* Form fields */}
                         <div className="space-y-4">
                             {/* Code / Part Number */}
@@ -207,10 +255,7 @@ const PriceBook = () => {
                                 <input
                                     type="text"
                                     defaultValue={selectedItem.partNumber}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                                 <div className="text-xs text-gray-300 mt-1">(0/31 Characters)</div>
                             </div>
@@ -221,10 +266,7 @@ const PriceBook = () => {
                                 <input
                                     type="text"
                                     defaultValue={selectedItem.partNumber}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
 
@@ -233,25 +275,19 @@ const PriceBook = () => {
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Description</label>
                                 <textarea
                                     defaultValue={selectedItem.description}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                     rows="3"
                                 />
                             </div>
 
-                            {/* Price Info */}
+                            {/* Price Information */}
                             <h3 className="text-lg font-semibold mt-4 text-gray-200">Price Information</h3>
                             <div>
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Price</label>
                                 <input
                                     type="text"
                                     defaultValue={selectedItem.price}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -259,10 +295,7 @@ const PriceBook = () => {
                                 <input
                                     type="text"
                                     defaultValue={selectedItem.price}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -270,10 +303,7 @@ const PriceBook = () => {
                                 <input
                                     type="text"
                                     defaultValue={selectedItem.price}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -281,10 +311,7 @@ const PriceBook = () => {
                                 <input
                                     type="text"
                                     defaultValue={selectedItem.price}
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
 
@@ -293,10 +320,7 @@ const PriceBook = () => {
                                 <label className="block text-sm font-medium mb-1 text-gray-200">Hours</label>
                                 <input
                                     type="text"
-                                    className="w-full px-3 py-2 
-                       bg-gray-700 text-gray-100 
-                       border border-gray-600 rounded 
-                       focus:outline-none"
+                                    className="w-full px-3 py-2 bg-gray-700 text-gray-100 border border-gray-600 rounded focus:outline-none"
                                 />
                             </div>
 
