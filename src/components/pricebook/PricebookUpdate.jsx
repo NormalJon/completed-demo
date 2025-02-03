@@ -12,7 +12,7 @@ import {
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import '../../styles/fade.css';
+import '../../styles/fade.css'; // Adjust path if needed
 
 function PricebookUpdate() {
     // Initial example data for the pricebook
@@ -38,7 +38,7 @@ function PricebookUpdate() {
             invoicePrice: 6.99,
             pricebookPrice: 7.59,
         },
-        // Additional items for demonstration...
+        // Add more items as needed for demo purposes
     ]);
 
     // State for bulk selection, pagination, search and sorting
@@ -49,6 +49,7 @@ function PricebookUpdate() {
     // sortConfig.key can be one of: 'itemCode', 'description', 'invoicePrice', 'pricebookPrice', or 'difference'
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
+    // Update sort configuration when a header is clicked
     const handleSort = (key) => {
         let direction = 'ascending';
         if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -58,7 +59,7 @@ function PricebookUpdate() {
         toast.info(`Sorted by ${key} (${direction})`);
     };
 
-    // Compute filtered and sorted items (for 'difference', compute invoicePrice - pricebookPrice)
+    // Compute filtered and sorted items. Note: For the 'difference' sort key we compute the difference.
     const filteredSortedItems = useMemo(() => {
         let filtered = items;
         if (searchTerm) {
@@ -88,12 +89,13 @@ function PricebookUpdate() {
         return filtered;
     }, [items, searchTerm, sortConfig]);
 
-    // Pagination calculations
+    // Pagination calculations based on the filtered & sorted items
     const totalPages = Math.ceil(filteredSortedItems.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredSortedItems.slice(indexOfFirstItem, indexOfLastItem);
 
+    // Handler for toggling a row’s checkbox
     const handleCheckboxChange = (id) => {
         setSelectedIds((prev) =>
             prev.includes(id)
@@ -102,12 +104,13 @@ function PricebookUpdate() {
         );
     };
 
+    // Handlers for approving (updating) or dismissing an individual item
     const handleApprove = (id) => {
         setItems((prevItems) => prevItems.filter((item) => item.id !== id));
         setSelectedIds((prevSelected) =>
             prevSelected.filter((itemId) => itemId !== id)
         );
-        toast.success('Item updated and removed');
+        toast.success('ServiceTitan Item Updated');
     };
 
     const handleDismiss = (id) => {
@@ -115,9 +118,10 @@ function PricebookUpdate() {
         setSelectedIds((prevSelected) =>
             prevSelected.filter((itemId) => itemId !== id)
         );
-        toast.warn('Item dismissed and removed');
+        toast.warn('Item dismissed');
     };
 
+    // Handlers for bulk actions
     const handleApproveSelected = () => {
         setItems((prevItems) =>
             prevItems.filter((item) => !selectedIds.includes(item.id))
@@ -134,6 +138,7 @@ function PricebookUpdate() {
         toast.warn('Selected items dismissed');
     };
 
+    // A helper function to format the difference between invoice and pricebook prices
     const formatDifference = (invoice, pricebook) => {
         const diff = invoice - pricebook;
         const absDiff = Math.abs(diff).toFixed(2);
@@ -145,7 +150,7 @@ function PricebookUpdate() {
         return <span>$0.00</span>;
     };
 
-    // Helper to show sort arrow icons for active columns
+    // Helper function to return sort arrow icon if a column is active
     const getSortIcon = (columnKey) => {
         if (sortConfig.key === columnKey) {
             return sortConfig.direction === 'ascending' ? (
@@ -157,6 +162,7 @@ function PricebookUpdate() {
         return null;
     };
 
+    // Sidebar navigation items
     const sideNavItems = [
         {
             label: 'Pricebook Builder',
@@ -245,43 +251,50 @@ function PricebookUpdate() {
                     </button>
                 </div>
 
-                {/* Fixed-Height Table Container */}
-                <div className="bg-white border rounded shadow p-4 h-[600px] overflow-y-auto">
-                    <table className="w-full text-left border-collapse">
+                <div className="bg-white border rounded shadow p-4 overflow-x-auto" style={{ minWidth: '1000px' }}>
+                    <table
+                        className="w-full text-left border-collapse"
+                        style={{ tableLayout: 'fixed' }}
+                    >
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="py-3 px-4 text-sm font-semibold text-gray-600 w-10"></th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
                                     onClick={() => handleSort('itemCode')}
                                 >
                                     Item Code {getSortIcon('itemCode')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '250px' }}
                                     onClick={() => handleSort('description')}
                                 >
                                     Description {getSortIcon('description')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
                                     onClick={() => handleSort('invoicePrice')}
                                 >
                                     Invoice Price {getSortIcon('invoicePrice')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
                                     onClick={() => handleSort('pricebookPrice')}
                                 >
                                     Pricebook Cost {getSortIcon('pricebookPrice')}
                                 </th>
                                 <th
                                     className="py-3 px-4 text-sm font-semibold text-gray-600 cursor-pointer"
+                                    style={{ width: '150px' }}
                                     onClick={() => handleSort('difference')}
                                 >
                                     Difference {getSortIcon('difference')}
                                 </th>
-                                <th className="py-3 px-4 text-sm font-semibold text-gray-600">
+                                <th className="py-3 px-4 text-sm font-semibold text-gray-600" style={{ width: '200px' }}>
                                     Actions
                                 </th>
                             </tr>
@@ -334,6 +347,7 @@ function PricebookUpdate() {
                     </table>
                 </div>
 
+
                 {/* Pagination Controls */}
                 <div className="flex justify-center mt-4">
                     {Array.from({ length: totalPages }, (_, index) => {
@@ -343,8 +357,8 @@ function PricebookUpdate() {
                                 key={pageNumber}
                                 onClick={() => setCurrentPage(pageNumber)}
                                 className={`mx-1 px-3 py-1 border rounded ${currentPage === pageNumber
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-white text-gray-700 hover:bg-gray-200'
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-white text-gray-700 hover:bg-gray-200'
                                     }`}
                             >
                                 {pageNumber}
@@ -353,6 +367,7 @@ function PricebookUpdate() {
                     })}
                 </div>
             </main>
+            {/* Toast Notifications Container */}
             <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </div>
     );
